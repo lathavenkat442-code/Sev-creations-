@@ -1,5 +1,13 @@
 export const CATEGORIES = ['Shirts', 'Pants', 'Sarees', 'Chudithar', 'Kids', 'Innerwear', 'Others'];
-export const PREDEFINED_COLORS = [{ name: 'Red' }, { name: 'Blue' }, { name: 'Green' }, { name: 'Black' }, { name: 'White' }];
+export const PREDEFINED_COLORS = [
+    { name: 'Red' }, { name: 'Blue' }, { name: 'Green' }, { name: 'Black' }, { name: 'White' },
+    { name: 'Yellow' }, { name: 'Orange' }, { name: 'Purple' }, { name: 'Pink' }, { name: 'Brown' },
+    { name: 'Grey' }, { name: 'Maroon' }, { name: 'Navy Blue' }, { name: 'Sky Blue' }, { name: 'Gold' },
+    { name: 'Silver' }, { name: 'Beige' }, { name: 'Cream' }, { name: 'Olive' }, { name: 'Teal' },
+    { name: 'Mustard' }, { name: 'Lavender' }, { name: 'Peach' }, { name: 'Coral' }, { name: 'Burgundy' },
+    { name: 'Charcoal' }, { name: 'Indigo' }, { name: 'Magenta' }, { name: 'Cyan' }, { name: 'Lime' },
+    { name: 'Turquoise' }, { name: 'Violet' }, { name: 'Rust' }, { name: 'Tan' }, { name: 'Khaki' }
+];
 export const SHIRT_SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
 
 export const TRANSLATIONS = {

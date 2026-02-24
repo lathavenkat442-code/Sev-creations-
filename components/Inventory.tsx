@@ -11,13 +11,19 @@ interface InventoryProps {
 
 const Inventory: React.FC<InventoryProps> = ({ stocks, onDelete, onEdit, language }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [selectedVariantIndex, setSelectedVariantIndex] = useState<number | null>(null);
   
   const getStockLevel = (stock: StockItem) => {
     return stock.variants?.reduce((acc, v) => acc + v.sizeStocks.reduce((sAcc, s) => sAcc + s.quantity, 0), 0) || 0;
   };
 
   const toggleExpand = (id: string) => {
-    setExpandedId(expandedId === id ? null : id);
+    if (expandedId === id) {
+      setExpandedId(null);
+    } else {
+      setExpandedId(id);
+      setSelectedVariantIndex(null);
+    }
   };
 
   return (
@@ -112,7 +118,11 @@ const Inventory: React.FC<InventoryProps> = ({ stocks, onDelete, onEdit, languag
                                 <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                                     {stock.variants.map((v, idx) => (
                                         v.imageUrl && (
-                                            <div key={idx} className="w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden border border-gray-200 bg-white shadow-sm">
+                                            <div 
+                                                key={idx} 
+                                                onClick={() => setSelectedVariantIndex(selectedVariantIndex === idx ? null : idx)}
+                                                className={`w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden border bg-white shadow-sm cursor-pointer transition-all ${selectedVariantIndex === idx ? 'border-indigo-500 ring-2 ring-indigo-200 scale-105' : 'border-gray-200 hover:border-indigo-300'}`}
+                                            >
                                                 <img src={v.imageUrl} className="w-full h-full object-cover" alt={`Variant ${idx + 1}`} />
                                             </div>
                                         )
@@ -125,12 +135,19 @@ const Inventory: React.FC<InventoryProps> = ({ stocks, onDelete, onEdit, languag
                         <div>
                             <h4 className="text-xs font-bold text-gray-400 uppercase mb-2 ml-1">{language === 'ta' ? 'இருப்பு விவரங்கள்' : 'Stock Details'}</h4>
                             <div className="grid gap-2">
-                                {stock.variants.map((v, vIdx) => (
-                                    v.sizeStocks.map((s, sIdx) => (
-                                        <div key={`${vIdx}-${sIdx}`} className="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center shadow-sm">
+                                {stock.variants.map((v, vIdx) => {
+                                    // Filter by selected variant if one is selected
+                                    if (selectedVariantIndex !== null && selectedVariantIndex !== vIdx) return null;
+
+                                    return v.sizeStocks.map((s, sIdx) => (
+                                        <div key={`${vIdx}-${sIdx}`} className="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center shadow-sm animate-in fade-in duration-300">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
-                                                    <Palette size={14} />
+                                                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 overflow-hidden">
+                                                    {v.imageUrl ? (
+                                                        <img src={v.imageUrl} className="w-full h-full object-cover" alt="Variant" />
+                                                    ) : (
+                                                        <Palette size={14} />
+                                                    )}
                                                 </div>
                                                 <div>
                                                     <p className="font-bold text-gray-800 text-sm">{s.color || 'No Color'}</p>
@@ -141,8 +158,11 @@ const Inventory: React.FC<InventoryProps> = ({ stocks, onDelete, onEdit, languag
                                                 {s.quantity}
                                             </div>
                                         </div>
-                                    ))
-                                ))}
+                                    ));
+                                })}
+                                {selectedVariantIndex !== null && stock.variants[selectedVariantIndex]?.sizeStocks.length === 0 && (
+                                    <p className="text-sm text-gray-400 italic text-center py-2">No stock details for this variant.</p>
+                                )}
                             </div>
                         </div>
                     </div>

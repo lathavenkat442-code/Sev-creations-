@@ -185,20 +185,6 @@ const AddStockModal: React.FC<{ onSave: (item: any, id?: string) => void; onClos
 
   const currentVariant = variants[activeVariantIndex];
 
-  const [customColors, setCustomColors] = useState<{name: string, hex: string}[]>([]);
-  const [newColorName, setNewColorName] = useState('');
-  const [isAddingColor, setIsAddingColor] = useState(false);
-
-  const handleAddColor = () => {
-    if (newColorName.trim()) {
-        setCustomColors([...customColors, { name: newColorName.trim(), hex: '#000000' }]);
-        setNewColorName('');
-        setIsAddingColor(false);
-    }
-  };
-
-  const allColors = [...PREDEFINED_COLORS, ...customColors];
-
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
       <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-in slide-in-from-bottom duration-300 max-h-[90vh] overflow-y-auto">
@@ -288,23 +274,7 @@ const AddStockModal: React.FC<{ onSave: (item: any, id?: string) => void; onClos
                                  </div>
                                  {activeDropdown?.vIdx === activeVariantIndex && activeDropdown?.sIdx === sIdx && activeDropdown?.field === 'color' && (
                                     <div className="absolute z-[60] bottom-full left-0 w-full mb-2 bg-white border border-gray-100 rounded-2xl shadow-2xl max-h-40 overflow-y-auto p-2">
-                                       {allColors.map(c => <div key={c.name} onClick={() => updateSizeStock(activeVariantIndex, sIdx, 'color', c.name)} className="p-3 hover:bg-indigo-50 rounded-xl text-xs font-black text-gray-700 border-b last:border-0">{c.name}</div>)}
-                                       <div className="p-2 border-t mt-1">
-                                            {isAddingColor ? (
-                                                <div className="flex gap-2">
-                                                    <input 
-                                                        value={newColorName} 
-                                                        onChange={e => setNewColorName(e.target.value)}
-                                                        className="flex-1 bg-gray-100 rounded-lg px-2 py-1 text-xs outline-none"
-                                                        placeholder="New Color"
-                                                        autoFocus
-                                                    />
-                                                    <button type="button" onClick={handleAddColor} className="bg-indigo-600 text-white px-2 rounded-lg text-xs font-bold">Add</button>
-                                                </div>
-                                            ) : (
-                                                <button type="button" onClick={() => setIsAddingColor(true)} className="w-full text-center text-indigo-600 text-xs font-bold py-1">+ Add New Color</button>
-                                            )}
-                                       </div>
+                                       {PREDEFINED_COLORS.map(c => <div key={c.name} onClick={() => updateSizeStock(activeVariantIndex, sIdx, 'color', c.name)} className="p-3 hover:bg-indigo-50 rounded-xl text-xs font-black text-gray-700 border-b last:border-0">{c.name}</div>)}
                                     </div>
                                  )}
                               </div>
@@ -731,7 +701,7 @@ const App: React.FC = () => {
         </div>
       </header>
       <main className="flex-1 overflow-y-auto pb-24">
-        {activeTab === 'dashboard' && <Dashboard stocks={stocks} transactions={transactions} language={language} user={user} onSetupServer={() => setShowDatabaseConfig(true)} />}
+        {activeTab === 'dashboard' && <Dashboard stocks={stocks} transactions={transactions} language={language} user={user} />}
         {activeTab === 'stock' && <Inventory stocks={stocks} onDelete={handleDeleteStock} onEdit={s => { setEditingStock(s); setIsAddingStock(true); }} language={language} />}
         {activeTab === 'accounts' && <Accounting transactions={transactions} language={language} onEdit={t => { setEditingTransaction(t); setIsAddingTransaction(true); }} onClear={handleClearTransactions} />}
         {activeTab === 'profile' && <Profile user={user} updateUser={setUser} stocks={stocks} transactions={transactions} onLogout={async () => { 
