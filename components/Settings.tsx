@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { TRANSLATIONS } from '../constants';
-import { Save, Building, Phone, MapPin, DollarSign, Type, Lock, Loader2 } from 'lucide-react';
+import { Save, Building, Phone, MapPin, DollarSign, Type, Lock, Loader2, Image as ImageIcon, Upload } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
 interface SettingsProps {
@@ -14,11 +14,14 @@ const Settings: React.FC<SettingsProps> = ({ language, onLanguageChange }) => {
   const [contact, setContact] = useState(localStorage.getItem('viyabaari_contact') || '');
   const [currencySymbol, setCurrencySymbol] = useState(localStorage.getItem('viyabaari_currency_symbol') || '₹');
   const [currencyCode, setCurrencyCode] = useState(localStorage.getItem('viyabaari_currency_code') || 'INR');
+  const [logo, setLogo] = useState(localStorage.getItem('viyabaari_logo') || '');
   const [toast, setToast] = useState<{ msg: string, show: boolean }>({ msg: '', show: false });
 
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const t = TRANSLATIONS[language] || TRANSLATIONS['en'];
 
@@ -29,9 +32,24 @@ const Settings: React.FC<SettingsProps> = ({ language, onLanguageChange }) => {
     localStorage.setItem('viyabaari_contact', contact);
     localStorage.setItem('viyabaari_currency_symbol', currencySymbol);
     localStorage.setItem('viyabaari_currency_code', currencyCode);
+    localStorage.setItem('viyabaari_logo', logo);
     
     setToast({ msg: t.settingsSaved || 'Settings Saved!', show: true });
-    setTimeout(() => setToast({ ...toast, show: false }), 3000);
+    setTimeout(() => {
+        setToast({ ...toast, show: false });
+        window.location.reload(); // Reload to apply logo in header
+    }, 1500);
+  };
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setLogo(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+    }
   };
 
   const handleChangePassword = async () => {
@@ -94,6 +112,49 @@ const Settings: React.FC<SettingsProps> = ({ language, onLanguageChange }) => {
             <div className="flex bg-gray-100 p-1 rounded-2xl">
                 <button type="button" onClick={() => onLanguageChange('ta')} className={`flex-1 py-3 rounded-xl font-black text-sm transition-all ${language === 'ta' ? 'bg-white text-indigo-600 shadow-md' : 'text-gray-500'}`}>தமிழ்</button>
                 <button type="button" onClick={() => onLanguageChange('en')} className={`flex-1 py-3 rounded-xl font-black text-sm transition-all ${language === 'en' ? 'bg-white text-indigo-600 shadow-md' : 'text-gray-500'}`}>English</button>
+            </div>
+        </div>
+
+        {/* App Logo */}
+        <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 space-y-4">
+            <h3 className="font-black text-lg text-gray-800 flex items-center gap-2">
+                <ImageIcon size={20} className="text-indigo-600" />
+                {language === 'ta' ? 'ஆப் லோகோ' : 'App Logo'}
+            </h3>
+            <div className="flex flex-col items-center gap-4">
+                <div className="w-24 h-24 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden bg-gray-50">
+                    {logo ? (
+                        <img src={logo} alt="Logo" className="w-full h-full object-contain" />
+                    ) : (
+                        <ImageIcon size={32} className="text-gray-300" />
+                    )}
+                </div>
+                <input 
+                    type="file" 
+                    accept="image/*" 
+                    ref={fileInputRef} 
+                    onChange={handleLogoUpload} 
+                    className="hidden" 
+                />
+                <div className="flex gap-2">
+                    <button 
+                        type="button" 
+                        onClick={() => fileInputRef.current?.click()} 
+                        className="px-4 py-2 bg-indigo-50 text-indigo-600 font-bold rounded-xl text-sm flex items-center gap-2"
+                    >
+                        <Upload size={16} />
+                        {language === 'ta' ? 'லோகோவை மாற்று' : 'Upload Logo'}
+                    </button>
+                    {logo && (
+                        <button 
+                            type="button" 
+                            onClick={() => setLogo('')} 
+                            className="px-4 py-2 bg-red-50 text-red-600 font-bold rounded-xl text-sm"
+                        >
+                            {language === 'ta' ? 'நீக்கு' : 'Remove'}
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
 

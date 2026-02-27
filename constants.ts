@@ -12,7 +12,7 @@ export const SHIRT_SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
 
 export const TRANSLATIONS = {
   en: {
-    appName: 'Viyabaari',
+    appName: 'SEV CREATIONS',
     dashboard: 'Dashboard',
     stock: 'Stock',
     accounts: 'Accounts',
@@ -70,7 +70,7 @@ export const TRANSLATIONS = {
     followUs: 'Follow Us',
   },
   ta: {
-    appName: 'வியாபாரி',
+    appName: 'SEV CREATIONS',
     dashboard: 'முகப்பு',
     stock: 'சரக்கு',
     accounts: 'கணக்கு',

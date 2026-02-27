@@ -677,12 +677,13 @@ const App: React.FC = () => {
   };
 
   const t = TRANSLATIONS[language];
+  const appLogo = localStorage.getItem('viyabaari_logo');
   
   if (isAppLoading) {
       return (
           <div className="min-h-screen bg-indigo-600 flex flex-col items-center justify-center text-white">
               <Loader2 size={48} className="animate-spin mb-4" />
-              <h1 className="text-2xl font-black tamil-font animate-pulse">Viyabaari Loading...</h1>
+              <h1 className="text-2xl font-black tamil-font animate-pulse">SEV CREATIONS Loading...</h1>
           </div>
       );
   }
@@ -693,7 +694,14 @@ const App: React.FC = () => {
     <div className="max-w-md mx-auto min-h-screen bg-slate-50 flex flex-col shadow-xl">
       <Toast message={toast.msg} show={toast.show} isError={toast.isError} onClose={() => setToast({ ...toast, show: false })} />
       <header className="bg-indigo-600 text-white p-3 sm:p-4 sticky top-0 z-10 shadow-md flex flex-wrap gap-2 justify-between items-center">
-        <div className="flex items-center gap-2"><h1 className="text-lg sm:text-xl font-bold tamil-font truncate">{t.appName}</h1></div>
+        <div className="flex items-center gap-2">
+            {appLogo ? (
+                <img src={appLogo} alt="App Logo" className="h-8 w-8 sm:h-10 sm:w-10 object-contain rounded-md bg-white p-0.5" />
+            ) : (
+                <img src="/logo.png" alt="App Logo" className="h-8 w-8 sm:h-10 sm:w-10 object-contain rounded-md bg-white p-0.5 hidden" onError={(e) => e.currentTarget.style.display = 'none'} />
+            )}
+            <h1 className="text-lg sm:text-xl font-bold tamil-font truncate">{t.appName}</h1>
+        </div>
         <div className="flex gap-2 items-center">
             {isOnline && user.uid && <button onClick={() => fetchData(true)} className={`p-2 bg-white/10 hover:bg-white/20 rounded-full transition ${isSyncing ? 'animate-spin' : ''}`}><RefreshCw size={20} /></button>}
             <button onClick={() => { setEditingStock(null); setIsAddingStock(true); }} className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition"><PlusCircle size={20}/></button>
@@ -771,7 +779,7 @@ const AuthScreen: React.FC<{ onLogin: (u: User) => void; language: 'ta' | 'en'; 
 
     return (
       <div className="min-h-screen bg-indigo-600 flex flex-col items-center justify-center p-6 text-white">
-         <h1 className="text-4xl font-black tamil-font mb-8">Viyabaari</h1>
+         <h1 className="text-4xl font-black tamil-font mb-8">SEV CREATIONS</h1>
          <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 text-gray-800 shadow-2xl">
                 <div className="flex gap-4 mb-6 bg-gray-100 p-1 rounded-2xl">
                     <button onClick={() => setMode('LOGIN')} className={`flex-1 py-2 rounded-xl font-bold text-sm transition ${mode === 'LOGIN' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400'}`}>Login</button>
