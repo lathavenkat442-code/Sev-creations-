@@ -119,7 +119,7 @@ const Accounting: React.FC<AccountingProps> = ({ transactions, language, onEdit 
       </div>
 
       {/* View Toggle */}
-      <div className="bg-white p-1.5 rounded-2xl shadow-sm border border-gray-100 flex">
+      <div className="bg-white p-1.5 rounded-2xl shadow-sm border-2 border-indigo-100 flex">
         <button 
             onClick={() => { setView('TRANSACTIONS'); setSelectedParty(null); }}
             className={`flex-1 py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-bold transition-all ${view === 'TRANSACTIONS' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'}`}
@@ -146,7 +146,7 @@ const Accounting: React.FC<AccountingProps> = ({ transactions, language, onEdit 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={language === 'ta' ? 'தேடவும் (வகை, குறிப்பு, பெயர்...)' : 'Search (Category, Note, Name...)'}
-                    className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl font-bold text-gray-700 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 transition"
+                    className="w-full pl-12 pr-4 py-4 bg-white border-2 border-indigo-100 rounded-2xl font-bold text-gray-700 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 transition"
                 />
             </div>
 
@@ -172,7 +172,7 @@ const Accounting: React.FC<AccountingProps> = ({ transactions, language, onEdit 
                         <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider mb-3 ml-2">{month}</h3>
                         <div className="space-y-3">
                             {txns.map(txn => (
-                                <div key={txn.id} onClick={() => onEdit(txn)} className="bg-white p-4 rounded-[1.5rem] border border-gray-100 shadow-sm flex items-center gap-4 active:scale-[0.98] transition cursor-pointer">
+                                <div key={txn.id} onClick={() => onEdit(txn)} className="bg-white p-4 rounded-[1.5rem] border-2 border-indigo-100 shadow-sm flex items-center gap-4 active:scale-[0.98] transition cursor-pointer">
                                     <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${txn.type === 'INCOME' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
                                         {txn.type === 'INCOME' ? <ArrowDownCircle size={24} /> : <ArrowUpCircle size={24} />}
                                     </div>
@@ -230,7 +230,7 @@ const Accounting: React.FC<AccountingProps> = ({ transactions, language, onEdit 
 
                     <div className="space-y-3">
                         {getPartyTransactions(selectedParty).map(txn => (
-                            <div key={txn.id} className="bg-white p-4 rounded-[1.5rem] border border-gray-100 shadow-sm flex items-center gap-4">
+                            <div key={txn.id} className="bg-white p-4 rounded-[1.5rem] border-2 border-indigo-100 shadow-sm flex items-center gap-4">
                                 <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${txn.type === 'INCOME' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
                                     {txn.type === 'INCOME' ? <ArrowDownCircle size={20} /> : <ArrowUpCircle size={20} />}
                                 </div>
@@ -263,7 +263,7 @@ const Accounting: React.FC<AccountingProps> = ({ transactions, language, onEdit 
                         parties.map(party => {
                             const balance = getPartyBalance(party as string);
                             return (
-                                <div key={party as string} onClick={() => setSelectedParty(party as string)} className="bg-white p-5 rounded-[1.5rem] shadow-sm border border-gray-100 flex justify-between items-center cursor-pointer hover:border-indigo-200 transition group">
+                                <div key={party as string} onClick={() => setSelectedParty(party as string)} className="bg-white p-5 rounded-[1.5rem] shadow-sm border-2 border-indigo-100 flex justify-between items-center cursor-pointer hover:border-indigo-200 transition group">
                                     <div className="flex items-center gap-4">
                                         <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-black text-gray-500">
                                             {party?.charAt(0).toUpperCase()}

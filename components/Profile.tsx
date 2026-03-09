@@ -19,7 +19,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, language, onSetupServ
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-4">{language === 'ta' ? 'சுயவிவரம்' : 'Profile'}</h2>
-      <div className="bg-white p-4 rounded-xl shadow-sm mb-4">
+      <div className="bg-white p-4 rounded-xl shadow-sm border-2 border-indigo-100 mb-4">
         <p className="font-bold text-lg">{user?.name}</p>
         <p className="text-gray-500">{user?.email}</p>
       </div>

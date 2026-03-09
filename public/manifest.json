@@ -1,23 +1,16 @@
 {
-  "short_name": "SEV",
   "name": "SEV CREATIONS",
-  "description": "இது SEV Creations-ன் அதிகாரப்பூர்வ ஆன்லைன் ஆப்.",
+  "short_name": "SEV CREATIONS",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
   "icons": [
     {
-      "src": "/icon-192.png",
-      "type": "image/png",
-      "sizes": "192x192",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-512.png",
-      "type": "image/png",
-      "sizes": "512x512",
-      "purpose": "any"
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#4f46e5",
-  "background_color": "#ffffff"
+  ]
 }

@@ -42,3 +42,10 @@ export interface User {
   avatar?: string;
   isLoggedIn: boolean;
 }
+
+export interface AppNotification {
+  id: string;
+  message: string;
+  timestamp: number;
+  read: boolean;
+}

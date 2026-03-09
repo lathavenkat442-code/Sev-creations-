@@ -50,7 +50,7 @@ const Inventory: React.FC<InventoryProps> = ({ stocks, onDelete, onEdit, languag
             const isExpanded = expandedId === stock.id;
 
             return (
-                <div key={stock.id} className={`bg-white rounded-[1.5rem] shadow-sm border border-gray-100 overflow-hidden transition-all duration-300 ${isExpanded ? 'ring-2 ring-indigo-100' : ''}`}>
+                <div key={stock.id} className={`bg-white rounded-[1.5rem] shadow-sm border-2 border-indigo-100 overflow-hidden transition-all duration-300 ${isExpanded ? 'ring-2 ring-indigo-100' : ''}`}>
                   <div className="p-4 flex gap-4 items-start cursor-pointer" onClick={() => toggleExpand(stock.id)}>
                       <div className="w-20 h-20 bg-gray-100 rounded-2xl flex-shrink-0 overflow-hidden relative">
                         {firstImage ? (
@@ -140,7 +140,7 @@ const Inventory: React.FC<InventoryProps> = ({ stocks, onDelete, onEdit, languag
                                     if (selectedVariantIndex !== null && selectedVariantIndex !== vIdx) return null;
 
                                     return v.sizeStocks.map((s, sIdx) => (
-                                        <div key={`${vIdx}-${sIdx}`} className="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center shadow-sm animate-in fade-in duration-300">
+                                        <div key={`${vIdx}-${sIdx}`} className="bg-white p-3 rounded-xl border-2 border-indigo-100 flex justify-between items-center shadow-sm animate-in fade-in duration-300">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 overflow-hidden">
                                                     {v.imageUrl ? (

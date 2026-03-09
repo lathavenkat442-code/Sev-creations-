@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { StockItem, Transaction, User, TransactionType, SizeStock, StockVariant } from './types';
+import { StockItem, Transaction, User, TransactionType, SizeStock, StockVariant, AppNotification } from './types';
 import { TRANSLATIONS, CATEGORIES, PREDEFINED_COLORS, SHIRT_SIZES } from './constants';
 import Dashboard from './components/Dashboard';
 import Inventory from './components/Inventory';
@@ -9,7 +9,7 @@ import Profile from './components/Profile';
 import Settings from './components/Settings';
 import { supabase, isSupabaseConfigured, saveSupabaseConfig } from './supabaseClient';
 import { 
-  LayoutDashboard, Package, ArrowLeftRight, User as UserIcon, PlusCircle, X, Camera, Trash2, Palette, ChevronDown, RefreshCw, Database, Loader2, CheckCircle2, AlertTriangle, Settings as SettingsIcon
+  LayoutDashboard, Package, ArrowLeftRight, User as UserIcon, PlusCircle, X, Camera, Trash2, Palette, ChevronDown, RefreshCw, Database, Loader2, CheckCircle2, AlertTriangle, Settings as SettingsIcon, Bell
 } from 'lucide-react';
 
 const EXPENSE_CATEGORIES = ['Salary', 'Rent', 'Tea/Snacks', 'Transport', 'Purchase', 'Sales', 'Electricity', 'Maintenance', 'Others'];
@@ -60,7 +60,7 @@ const DatabaseConfigModal: React.FC<{ onClose: () => void; language: 'ta' | 'en'
     };
     return (
         <div className="fixed inset-0 bg-black/70 z-[70] flex items-center justify-center p-4 backdrop-blur-sm">
-             <div className="bg-white w-full max-w-sm rounded-[2rem] p-6 shadow-2xl relative">
+             <div className="bg-white w-full max-w-sm rounded-[2rem] p-6 shadow-2xl relative border-2 border-indigo-100">
                 <button onClick={onClose} className="absolute top-4 right-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200"><X size={20} /></button>
                 <div className="text-center mb-6">
                     <Database size={48} className="mx-auto text-indigo-600 mb-2"/>
@@ -86,7 +86,7 @@ const AddTransactionModal: React.FC<{ onSave: (txn: any, id?: string, date?: num
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl animate-in slide-in-from-bottom duration-300">
+      <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl animate-in slide-in-from-bottom duration-300 border-2 border-indigo-100">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-black text-gray-800 tamil-font">{initialData ? t.editTransaction : t.addTransaction}</h2>
           <button onClick={onClose} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200"><X size={20} /></button>
@@ -187,7 +187,7 @@ const AddStockModal: React.FC<{ onSave: (item: any, id?: string) => void; onClos
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-in slide-in-from-bottom duration-300 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-in slide-in-from-bottom duration-300 max-h-[90vh] overflow-y-auto border-2 border-indigo-100">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-black text-gray-800 tamil-font">{initialData ? t.update : t.addStock}</h2>
           <button onClick={onClose} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200"><X size={20} /></button>
@@ -264,7 +264,7 @@ const AddStockModal: React.FC<{ onSave: (item: any, id?: string) => void; onClos
                    
                    <div className="space-y-4">
                       {currentVariant.sizeStocks.map((stock, sIdx) => (
-                        <div key={sIdx} className="bg-white p-6 rounded-[1.8rem] border border-gray-100 shadow-sm relative space-y-4">
+                        <div key={sIdx} className="bg-white p-6 rounded-[1.8rem] border-2 border-indigo-100 shadow-sm relative space-y-4">
                            <div className="grid grid-cols-2 gap-4">
                               <div className="relative">
                                  <label className="text-[10px] font-black text-gray-400 uppercase ml-1 mb-1 block">{t.color}</label>
@@ -347,6 +347,8 @@ const App: React.FC = () => {
   const [showDatabaseConfig, setShowDatabaseConfig] = useState(false);
   const [toast, setToast] = useState<{ msg: string, show: boolean, isError?: boolean }>({ msg: '', show: false });
   const [isAppLoading, setIsAppLoading] = useState(true);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   const getEmailKey = (email: string) => (email || 'guest').toLowerCase().replace(/[^a-z0-9]/g, '_');
 
@@ -401,7 +403,20 @@ const App: React.FC = () => {
     try {
         const localS = localStorage.getItem(`viyabaari_stocks_${emailKey}`);
         const localT = localStorage.getItem(`viyabaari_txns_${emailKey}`);
+        const localN = localStorage.getItem(`viyabaari_notifs_${emailKey}`);
         
+        if (localN) {
+            try {
+                const parsedN = JSON.parse(localN);
+                if (Array.isArray(parsedN)) setNotifications(parsedN);
+            } catch (e) {
+                console.error("Local notifs corrupt", e);
+                localStorage.removeItem(`viyabaari_notifs_${emailKey}`);
+            }
+        } else {
+            setNotifications([]);
+        }
+
         if (localS) {
             try {
                 const parsedS = JSON.parse(localS);
@@ -474,6 +489,39 @@ const App: React.FC = () => {
   }, [user, isOnline]);
 
   useEffect(() => { if (user) fetchData(); }, [user?.uid, fetchData]);
+
+  const addNotification = (message: string) => {
+    if (!user) return;
+    const emailKey = getEmailKey(user.email);
+    const newNotif: AppNotification = {
+      id: Date.now().toString() + Math.random().toString(36).substring(7),
+      message,
+      timestamp: Date.now(),
+      read: false
+    };
+    setNotifications(prev => {
+      const updated = [newNotif, ...prev].slice(0, 50); // Keep last 50
+      try { localStorage.setItem(`viyabaari_notifs_${emailKey}`, JSON.stringify(updated)); } catch(e) { console.error(e); }
+      return updated;
+    });
+  };
+
+  const sendEmailNotification = async (subject: string, text: string) => {
+    if (!user || !user.email) return;
+    try {
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: user.email,
+          subject: subject,
+          text: text,
+        }),
+      });
+    } catch (error) {
+      console.error("Failed to send email notification:", error);
+    }
+  };
 
   const saveStock = async (itemData: any, id?: string) => {
     if (!user) return;
@@ -568,6 +616,9 @@ const App: React.FC = () => {
         setIsAddingStock(false); 
         setEditingStock(null);
         setToast({ msg: language === 'ta' ? 'சரக்கு சேமிக்கப்பட்டது!' : 'Stock Saved!', show: true });
+        const msg = language === 'ta' ? (id ? `சரக்கு ${newItem.name} மாற்றப்பட்டது` : `புதிய சரக்கு ${newItem.name} சேர்க்கப்பட்டது`) : (id ? `Stock ${newItem.name} updated` : `New stock ${newItem.name} added`);
+        addNotification(msg);
+        sendEmailNotification('Stock Update Notification', msg);
     } catch (err: any) { 
         console.error("Save stock failed:", err);
         setToast({ msg: err.message || 'Error saving stock', show: true, isError: true }); 
@@ -622,6 +673,9 @@ const App: React.FC = () => {
         setIsAddingTransaction(false); 
         setEditingTransaction(null);
         setToast({ msg: language === 'ta' ? 'கணக்கு சேமிக்கப்பட்டது!' : 'Entry Saved!', show: true });
+        const msg = language === 'ta' ? (id ? `கணக்கு ${newTxn.category} மாற்றப்பட்டது` : `புதிய கணக்கு ${newTxn.category} சேர்க்கப்பட்டது`) : (id ? `Transaction ${newTxn.category} updated` : `New transaction ${newTxn.category} added`);
+        addNotification(msg);
+        sendEmailNotification('Transaction Update Notification', msg);
     } catch (err: any) { 
         console.error("Save transaction failed:", err);
         setToast({ msg: err.message || 'Error saving transaction', show: true, isError: true }); 
@@ -655,6 +709,9 @@ const App: React.FC = () => {
             await supabase.from('stock_items').delete().eq('id', id).eq('user_id', user.uid);
         }
         setToast({ msg: language === 'ta' ? 'பொருள் நீக்கப்பட்டது!' : 'Item Deleted!', show: true });
+        const msg = language === 'ta' ? 'பொருள் நீக்கப்பட்டது' : 'Stock item deleted';
+        addNotification(msg);
+        sendEmailNotification('Stock Deletion Notification', msg);
         return true;
     } catch (err) {
         console.error("Delete stock failed:", err);
@@ -674,6 +731,9 @@ const App: React.FC = () => {
        await supabase.from('transactions').delete().eq('user_id', user.uid);
     }
     setToast({ msg: language === 'ta' ? 'அனைத்தும் அழிக்கப்பட்டது' : 'Cleared all', show: true });
+    const msg = language === 'ta' ? 'அனைத்து கணக்குகளும் அழிக்கப்பட்டன' : 'All transactions cleared';
+    addNotification(msg);
+    sendEmailNotification('Transactions Cleared Notification', msg);
   };
 
   const t = TRANSLATIONS[language];
@@ -693,7 +753,7 @@ const App: React.FC = () => {
   return (
     <div className="max-w-md mx-auto min-h-screen bg-slate-50 flex flex-col shadow-xl">
       <Toast message={toast.msg} show={toast.show} isError={toast.isError} onClose={() => setToast({ ...toast, show: false })} />
-      <header className="bg-indigo-600 text-white p-3 sm:p-4 sticky top-0 z-10 shadow-md flex flex-wrap gap-2 justify-between items-center">
+      <header className="bg-indigo-600 text-white p-3 sm:p-4 sticky top-0 z-40 shadow-md flex flex-wrap gap-2 justify-between items-center">
         <div className="flex items-center gap-2">
             {appLogo ? (
                 <img src={appLogo} alt="App Logo" className="h-8 w-8 sm:h-10 sm:w-10 object-contain rounded-md bg-white p-0.5" />
@@ -706,10 +766,51 @@ const App: React.FC = () => {
             {isOnline && user.uid && <button onClick={() => fetchData(true)} className={`p-2 bg-white/10 hover:bg-white/20 rounded-full transition ${isSyncing ? 'animate-spin' : ''}`}><RefreshCw size={20} /></button>}
             <button onClick={() => { setEditingStock(null); setIsAddingStock(true); }} className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition"><PlusCircle size={20}/></button>
             <button onClick={() => { setEditingTransaction(null); setIsAddingTransaction(true); }} className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition"><ArrowLeftRight size={20}/></button>
+            <div className="relative">
+                <button onClick={() => setIsNotificationOpen(!isNotificationOpen)} className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition relative">
+                    <Bell size={20} />
+                    {notifications.filter(n => !n.read).length > 0 && (
+                        <span className="absolute top-0 right-0 h-3 w-3 bg-red-500 rounded-full border-2 border-indigo-600"></span>
+                    )}
+                </button>
+                {isNotificationOpen && (
+                    <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-white rounded-2xl shadow-2xl overflow-hidden z-50 border-2 border-indigo-100">
+                        <div className="p-4 bg-indigo-50 border-b border-indigo-100 flex justify-between items-center">
+                            <h3 className="font-bold text-indigo-900 tamil-font">{language === 'ta' ? 'அறிவிப்புகள்' : 'Notifications'}</h3>
+                            {notifications.length > 0 && (
+                                <button 
+                                    onClick={() => {
+                                        const updated = notifications.map(n => ({ ...n, read: true }));
+                                        setNotifications(updated);
+                                        try { localStorage.setItem(`viyabaari_notifs_${getEmailKey(user.email)}`, JSON.stringify(updated)); } catch(e) { console.error(e); }
+                                    }}
+                                    className="text-xs text-indigo-600 hover:text-indigo-800 font-bold"
+                                >
+                                    {language === 'ta' ? 'அனைத்தையும் படி' : 'Mark all read'}
+                                </button>
+                            )}
+                        </div>
+                        <div className="max-h-80 overflow-y-auto">
+                            {notifications.length === 0 ? (
+                                <div className="p-6 text-center text-gray-400 text-sm font-medium">
+                                    {language === 'ta' ? 'அறிவிப்புகள் இல்லை' : 'No notifications'}
+                                </div>
+                            ) : (
+                                notifications.map(notif => (
+                                    <div key={notif.id} className={`p-4 border-b border-gray-50 hover:bg-gray-50 transition ${!notif.read ? 'bg-indigo-50/30' : ''}`}>
+                                        <p className="text-sm text-gray-800 font-medium">{notif.message}</p>
+                                        <p className="text-xs text-gray-400 mt-1">{new Date(notif.timestamp).toLocaleString(language === 'ta' ? 'ta-IN' : 'en-IN', { hour: 'numeric', minute: 'numeric', hour12: true, day: 'numeric', month: 'short' })}</p>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
       </header>
       <main className="flex-1 overflow-y-auto pb-24">
-        {activeTab === 'dashboard' && <Dashboard stocks={stocks} transactions={transactions} language={language} user={user} />}
+        {activeTab === 'dashboard' && <Dashboard stocks={stocks} transactions={transactions} language={language} user={user} onNavigate={(tab) => setActiveTab(tab)} />}
         {activeTab === 'stock' && <Inventory stocks={stocks} onDelete={handleDeleteStock} onEdit={s => { setEditingStock(s); setIsAddingStock(true); }} language={language} />}
         {activeTab === 'accounts' && <Accounting transactions={transactions} language={language} onEdit={t => { setEditingTransaction(t); setIsAddingTransaction(true); }} onClear={handleClearTransactions} />}
         {activeTab === 'profile' && <Profile user={user} updateUser={setUser} stocks={stocks} transactions={transactions} onLogout={async () => { 
@@ -723,14 +824,14 @@ const App: React.FC = () => {
       {showDatabaseConfig && <DatabaseConfigModal onClose={() => setShowDatabaseConfig(false)} language={language} />}
       {isAddingStock && <AddStockModal onSave={saveStock} onClose={() => setIsAddingStock(false)} initialData={editingStock || undefined} language={language} t={t} />}
       {isAddingTransaction && <AddTransactionModal onSave={saveTransaction} onClose={() => setIsAddingTransaction(false)} initialData={editingTransaction || undefined} language={language} t={t} />}
-      <nav className="bg-indigo-600 border-t border-indigo-500 fixed bottom-0 w-full max-w-md flex justify-around p-3 z-10 text-white">
+      <nav className="bg-indigo-600 border-t border-indigo-500 fixed bottom-0 w-full max-w-md flex justify-around p-3 z-40 text-white">
         <button onClick={() => setActiveTab('dashboard')} className={`flex flex-col items-center transition ${activeTab === 'dashboard' ? 'opacity-100 scale-110' : 'opacity-60 hover:opacity-80'}`}><LayoutDashboard size={24} /><span className="text-[10px] tamil-font mt-1">{t.dashboard}</span></button>
         <button onClick={() => setActiveTab('stock')} className={`flex flex-col items-center transition ${activeTab === 'stock' ? 'opacity-100 scale-110' : 'opacity-60 hover:opacity-80'}`}><Package size={24} /><span className="text-[10px] tamil-font mt-1">{t.stock}</span></button>
         <button onClick={() => setActiveTab('accounts')} className={`flex flex-col items-center transition ${activeTab === 'accounts' ? 'opacity-100 scale-110' : 'opacity-60 hover:opacity-80'}`}><ArrowLeftRight size={24} /><span className="text-[10px] tamil-font mt-1">{t.accounts}</span></button>
         <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center transition ${activeTab === 'profile' ? 'opacity-100 scale-110' : 'opacity-60 hover:opacity-80'}`}><UserIcon size={24} /><span className="text-[10px] tamil-font mt-1">{t.profile}</span></button>
         <button onClick={() => setActiveTab('settings')} className={`flex flex-col items-center transition ${activeTab === 'settings' ? 'opacity-100 scale-110' : 'opacity-60 hover:opacity-80'}`}><SettingsIcon size={24} /><span className="text-[10px] tamil-font mt-1">{t.settings}</span></button>
       </nav>
-      {isLoading && <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-[110] backdrop-blur-[1px]"><div className="bg-white p-6 rounded-3xl shadow-2xl flex flex-col items-center gap-4 animate-in zoom-in duration-300"><Loader2 className="animate-spin text-indigo-600" size={40}/><p className="font-black text-gray-800 tamil-font">சேமிக்கப்படுகிறது...</p></div></div>}
+      {isLoading && <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-[110] backdrop-blur-[1px]"><div className="bg-white p-6 rounded-3xl shadow-2xl flex flex-col items-center gap-4 animate-in zoom-in duration-300 border-2 border-indigo-100"><Loader2 className="animate-spin text-indigo-600" size={40}/><p className="font-black text-gray-800 tamil-font">சேமிக்கப்படுகிறது...</p></div></div>}
     </div>
   );
 };
@@ -780,7 +881,7 @@ const AuthScreen: React.FC<{ onLogin: (u: User) => void; language: 'ta' | 'en'; 
     return (
       <div className="min-h-screen bg-indigo-600 flex flex-col items-center justify-center p-6 text-white">
          <h1 className="text-4xl font-black tamil-font mb-8">SEV CREATIONS</h1>
-         <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 text-gray-800 shadow-2xl">
+         <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 text-gray-800 shadow-2xl border-2 border-indigo-100">
                 <div className="flex gap-4 mb-6 bg-gray-100 p-1 rounded-2xl">
                     <button onClick={() => setMode('LOGIN')} className={`flex-1 py-2 rounded-xl font-bold text-sm transition ${mode === 'LOGIN' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400'}`}>Login</button>
                     <button onClick={() => setMode('REGISTER')} className={`flex-1 py-2 rounded-xl font-bold text-sm transition ${mode === 'REGISTER' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400'}`}>Sign Up</button>

@@ -104,7 +104,7 @@ const Settings: React.FC<SettingsProps> = ({ language, onLanguageChange }) => {
 
       <form onSubmit={handleSave} className="space-y-6">
         {/* App Preferences */}
-        <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 space-y-4">
+        <div className="bg-white p-6 rounded-[2rem] shadow-sm border-2 border-indigo-100 space-y-4">
             <h3 className="font-black text-lg text-gray-800 flex items-center gap-2">
                 <Type size={20} className="text-indigo-600" />
                 {t.language || 'Language'}
@@ -116,7 +116,7 @@ const Settings: React.FC<SettingsProps> = ({ language, onLanguageChange }) => {
         </div>
 
         {/* App Logo */}
-        <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 space-y-4">
+        <div className="bg-white p-6 rounded-[2rem] shadow-sm border-2 border-indigo-100 space-y-4">
             <h3 className="font-black text-lg text-gray-800 flex items-center gap-2">
                 <ImageIcon size={20} className="text-indigo-600" />
                 {language === 'ta' ? 'ஆப் லோகோ' : 'App Logo'}
@@ -159,7 +159,7 @@ const Settings: React.FC<SettingsProps> = ({ language, onLanguageChange }) => {
         </div>
 
         {/* Business Details */}
-        <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 space-y-4">
+        <div className="bg-white p-6 rounded-[2rem] shadow-sm border-2 border-indigo-100 space-y-4">
             <h3 className="font-black text-lg text-gray-800 flex items-center gap-2">
                 <Building size={20} className="text-indigo-600" />
                 {t.businessName || 'Business Details'}
@@ -191,7 +191,7 @@ const Settings: React.FC<SettingsProps> = ({ language, onLanguageChange }) => {
         </div>
 
         {/* Currency Settings */}
-        <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 space-y-4">
+        <div className="bg-white p-6 rounded-[2rem] shadow-sm border-2 border-indigo-100 space-y-4">
             <h3 className="font-black text-lg text-gray-800 flex items-center gap-2">
                 <DollarSign size={20} className="text-indigo-600" />
                 {t.currencySymbol || 'Currency'}
@@ -210,7 +210,7 @@ const Settings: React.FC<SettingsProps> = ({ language, onLanguageChange }) => {
         </div>
 
         {/* Change Password */}
-        <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 space-y-4">
+        <div className="bg-white p-6 rounded-[2rem] shadow-sm border-2 border-indigo-100 space-y-4">
             <h3 className="font-black text-lg text-gray-800 flex items-center gap-2">
                 <Lock size={20} className="text-indigo-600" />
                 {language === 'ta' ? 'கடவுச்சொல்லை மாற்ற' : 'Change Password'}
